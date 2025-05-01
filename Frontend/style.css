@@ -1,0 +1,108 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 2rem;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    text-align: center;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+#pressure-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#pressure-list li {
+    position: relative;
+    background: white;
+    margin: 1rem 0; /* Erhöht den vertikalen Abstand */
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Für schönes Aufklappen */
+.day-entry {
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0.5rem;
+    background-color: #e0f7fa;
+    border-radius: 8px;
+    display: flex; /* Für die horizontale Anordnung */
+    align-items: center; /* Zentriert die Elemente vertikal */
+    justify-content: space-between; /* Verteilt den Platz gleichmäßig */
+}
+
+.day-entry:hover {
+    background-color: #b2ebf2;
+}
+
+/* Animation beim Aufklappen */
+.chart-container {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.5s ease, opacity 0.5s ease;
+    width: 50%;
+    max-width: 500px;
+    margin-top: 1rem;
+}
+
+.chart-container.open {
+    max-height: 600px; /* Genug Platz für den Chart */
+    opacity: 1;
+}
+
+@media (max-width: 600px) {
+    .chart-container {
+        width: 100%;
+    }
+}
+
+
+.pressure-slider {
+    width: 100px; /* Breite des Sliders */
+    margin-left: 1rem; /* Abstand vom Text */
+    vertical-align: middle; /* Zentriert den Slider vertikal */
+}
+
+.slider-value {
+    margin-left: 0.5rem; /* Abstand vom Slider */
+    font-size: 0.8rem;
+    color: #555;
+    vertical-align: middle;
+    width: 20px;
+    display: inline-block;
+    text-align: center;
+}
+
+.pressure-text {
+    flex-grow: 1; /* Nimmt den verfügbaren Platz ein */
+}
+
+.pressure-controls {
+    display: flex;
+    align-items: center;
+}
+
+
+
+
+
+
+
