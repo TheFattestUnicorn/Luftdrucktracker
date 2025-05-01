@@ -64,7 +64,10 @@ function calculateDailyAverages(data) {
 
 function renderList() {
     const pressureList = document.getElementById('pressure-list');
-    pressureList.innerHTML = '';
+    pressureList.innerHTML = ''; // Leere die Liste
+
+    const template = document.getElementById('pressure-list-item-template'); // Hole das Template
+    const templateContent = template.content; // Hole den Inhalt des Templates
 
     const monthName = new Intl.DateTimeFormat('de-DE', { month: 'long' }).format(new Date(currentYear, currentMonth));
     document.getElementById('current-month').textContent = `${monthName} ${currentYear}`;
@@ -82,37 +85,51 @@ function renderList() {
         pressureList.appendChild(li);
     } else {
         filteredData.forEach(entry => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <div class="day-entry">
-                    <span class="pressure-text">${new Date(entry.date).toLocaleDateString('de-DE')}: ${entry.averagePressure.toFixed(2)} hPa</span>
-                    <div class="pressure-controls">
-                        <input type="range" min="1" max="10" value="5" class="pressure-slider" id="slider-${entry.date}">
-                        <span id="slider-value-${entry.date}" class="slider-value">5</span>
-                    </div>
-                </div>
-                <div class="chart-container" id="chart-${entry.date}" style="display:none; margin-top: 1rem;">
-                    <canvas id="canvas-${entry.date}"></canvas>
-                </div>
-            `;
-    
-            const slider = li.querySelector(`#slider-${entry.date}`);
-            const sliderValue = li.querySelector(`#slider-value-${entry.date}`);
-            const pressureText = li.querySelector('.pressure-text'); // Wähle nur den Textteil aus
-    
-            slider.addEventListener('input', (event) => {
-                event.stopPropagation();
-                sliderValue.textContent = slider.value;
-                // Hier können Sie weitere Aktionen ausführen
-                console.log(`Slider value for ${entry.date}: ${slider.value}`);
-            });
-    
-            pressureText.addEventListener('click', () => toggleChart(entry.date)); // EventListener nur für den Text
-    
-            li.querySelector('.day-entry').addEventListener('click', (event) => {
-                event.stopPropagation();
-            });
-    
+            const li = document.importNode(templateContent, true); // Klone das Template
+
+            const formattedDate = new Date(entry.date).toLocaleDateString('de-DE');
+
+            // Ersetze die Platzhalter im geklonten Template
+            const pressureText = li.querySelector('.pressure-text');
+            if (pressureText) {
+                pressureText.textContent = `${formattedDate}: ${entry.averagePressure.toFixed(2)} hPa`;
+                pressureText.addEventListener('click', () => toggleChart(entry.date));
+            }
+
+            const slider = li.querySelector('.pressure-slider');
+            if (slider) {
+                slider.id = `slider-${entry.date}`;
+                slider.addEventListener('input', (event) => {
+                    event.stopPropagation();
+                    const sliderValue = document.getElementById(`slider-value-${entry.date}`);
+                    if (sliderValue) {
+                        sliderValue.textContent = event.target.value;
+                        console.log(`Slider value for ${entry.date}: ${event.target.value}`);
+                    }
+                });
+            }
+
+            const sliderValueSpan = li.querySelector('.slider-value');
+            if (sliderValueSpan) {
+                sliderValueSpan.id = `slider-value-${entry.date}`;
+                sliderValueSpan.textContent = '1'; // Standardwert
+            }
+
+            const chartContainer = li.querySelector('.chart-container');
+            if (chartContainer) {
+                chartContainer.id = `chart-${entry.date}`;
+            }
+
+            const canvas = li.querySelector('canvas');
+            if (canvas) {
+                canvas.id = `canvas-${entry.date}`;
+                const ctx = canvas.getContext('2d');
+                if (ctx && chartInstances[entry.date]) {
+                    chartInstances[entry.date].destroy();
+                    delete chartInstances[entry.date];
+                }
+            }
+
             pressureList.appendChild(li);
         });
     }
@@ -145,59 +162,59 @@ function drawChart(dateKey) {
 
     const pressures = dayData.map(entry => entry.pressure);
 
-    const ctx = document.getElementById(`canvas-${dateKey}`).getContext('2d');
+    const canvas = document.getElementById(`canvas-${dateKey}`);
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
 
-    // Überprüfen, ob der Chart bereits existiert und ihn ggf. löschen 
-    if (chartInstances[dateKey]) {
-        chartInstances[dateKey].destroy();
-        delete chartInstances[dateKey];
-    }
-    // Neuen Chart erstellen
-    const chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Luftdruck (hPa)',
-                data: pressures,
-                borderColor: 'blue',
-                backgroundColor: 'lightblue',
-                tension: 0.3,
-                pointRadius: 3
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: { title: { display: true, text: 'Uhrzeit' } },
-                y: { title: { display: true, text: 'hPa' } }
-            }
+        // Überprüfen, ob der Chart bereits existiert und ihn ggf. löschen
+        if (chartInstances[dateKey]) {
+            chartInstances[dateKey].destroy();
+            delete chartInstances[dateKey];
         }
-        
-    });
+        // Neuen Chart erstellen
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Luftdruck (hPa)',
+                    data: pressures,
+                    className: 'chart-line' // CSS-Klasse für die Linien-Stile
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Uhrzeit', className: 'chart-scales' } }, // CSS-Klasse für die X-Achse
+                    y: { title: { display: true, text: 'hPa', className: 'chart-scales' } }  // CSS-Klasse für die Y-Achse
+                }
+            }
 
-    chartInstances[dateKey] = chart;
+        });
+
+        chartInstances[dateKey] = chart;
+    }
 }
 
-document.getElementById('prev-month').addEventListener('click', () => {
-    if (currentMonth === 0) {
-        currentMonth = 11;
-        currentYear--;
-    } else {
-        currentMonth--;
-    }
-    renderList();
-});
+window.onload = function() {
+    fetchPressureData();
+    document.getElementById('prev-month').addEventListener('click', () => {
+        if (currentMonth === 0) {
+            currentMonth = 11;
+            currentYear--;
+        } else {
+            currentMonth--;
+        }
+        renderList();
+    });
 
-document.getElementById('next-month').addEventListener('click', () => {
-    if (currentMonth === 11) {
-        currentMonth = 0;
-        currentYear++;
-    } else {
-        currentMonth++;
-    }
-    renderList();
-});
-
-// Beim Laden der Website aufrufen
-document.addEventListener('DOMContentLoaded', fetchPressureData);
+    document.getElementById('next-month').addEventListener('click', () => {
+        if (currentMonth === 11) {
+            currentMonth = 0;
+            currentYear++;
+        } else {
+            currentMonth++;
+        }
+        renderList();
+    });
+};

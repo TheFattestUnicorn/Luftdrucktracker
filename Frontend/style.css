@@ -100,6 +100,20 @@ button {
     align-items: center;
 }
 
+.chart-line {
+    /* Stile für die Linie des Charts */
+    borderColor: 'blue';
+    backgroundColor: 'lightblue';
+    tension: 0.3;
+    pointRadius: 3;
+}
+
+.chart-scales {
+    /* Stile für die Achsenbeschriftungen */
+    display: block; /* Erlaubt das Anwenden von Achsenbeschriftungsstilen */
+}
+
+
 
 
 
