@@ -43,6 +43,9 @@ button {
     padding: 0.5rem;
     background-color: #e0f7fa;
     border-radius: 8px;
+    display: flex; /* Für die horizontale Anordnung */
+    align-items: center; /* Zentriert die Elemente vertikal */
+    justify-content: space-between; /* Verteilt den Platz gleichmäßig */
 }
 
 .day-entry:hover {
@@ -70,4 +73,23 @@ button {
         width: 100%;
     }
 }
+
+
+.pressure-slider {
+    width: 100px; /* Breite des Sliders */
+    margin-left: 1rem; /* Abstand vom Text */
+    vertical-align: middle; /* Zentriert den Slider vertikal */
+}
+
+.slider-value {
+    margin-left: 0.5rem; /* Abstand vom Slider */
+    font-size: 0.8rem;
+    color: #555;
+    vertical-align: middle;
+    width: 20px;
+    display: inline-block;
+    text-align: center;
+}
+
+
 
