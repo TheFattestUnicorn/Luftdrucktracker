@@ -1,0 +1,12 @@
+{
+  "name": "migrane_monitor",
+  "version": "1.0.0",
+  "description": "API to get Pressure Data",
+  "main": "pressure.js",
+  "license": "MIT",
+  "dependencies": {
+    "async-bmp280": "^1.1.1",
+    "async-i2c-bus": "^2.0.0",
+    "better-sqlite3": "^11.9.1"
+  }
+}
