@@ -85,28 +85,34 @@ function renderList() {
             const li = document.createElement('li');
             li.innerHTML = `
                 <div class="day-entry">
-                    <span>${new Date(entry.date).toLocaleDateString('de-DE')}: ${entry.averagePressure.toFixed(2)} hPa</span>
-                    <input type="range" min="1" max="10" value="5" class="pressure-slider" id="slider-${entry.date}">
-                    <span id="slider-value-${entry.date}" class="slider-value">5</span>
+                    <span class="pressure-text">${new Date(entry.date).toLocaleDateString('de-DE')}: ${entry.averagePressure.toFixed(2)} hPa</span>
+                    <div class="pressure-controls">
+                        <input type="range" min="1" max="10" value="5" class="pressure-slider" id="slider-${entry.date}">
+                        <span id="slider-value-${entry.date}" class="slider-value">5</span>
+                    </div>
                 </div>
                 <div class="chart-container" id="chart-${entry.date}" style="display:none; margin-top: 1rem;">
                     <canvas id="canvas-${entry.date}"></canvas>
                 </div>
             `;
-
-            /* Hier wird der Slider hinzugefügt und die Chart-Logik integriert */
+    
             const slider = li.querySelector(`#slider-${entry.date}`);
             const sliderValue = li.querySelector(`#slider-value-${entry.date}`);
+            const pressureText = li.querySelector('.pressure-text'); // Wähle nur den Textteil aus
     
-            slider.addEventListener('input', () => {
+            slider.addEventListener('input', (event) => {
+                event.stopPropagation();
                 sliderValue.textContent = slider.value;
-                // Hier können weitere Aktionen ausgeführt werden, z.B. den Wert an eine Funktion übergeben
+                // Hier können Sie weitere Aktionen ausführen
                 console.log(`Slider value for ${entry.date}: ${slider.value}`);
             });
     
-
-            li.querySelector('.day-entry').addEventListener('click', () => toggleChart(entry.date));
-
+            pressureText.addEventListener('click', () => toggleChart(entry.date)); // EventListener nur für den Text
+    
+            li.querySelector('.day-entry').addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+    
             pressureList.appendChild(li);
         });
     }

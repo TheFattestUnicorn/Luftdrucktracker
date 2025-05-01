@@ -91,5 +91,18 @@ button {
     text-align: center;
 }
 
+.pressure-text {
+    flex-grow: 1; /* Nimmt den verfügbaren Platz ein */
+}
+
+.pressure-controls {
+    display: flex;
+    align-items: center;
+}
+
+
+
+
+
 
 
