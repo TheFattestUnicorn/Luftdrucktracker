@@ -1,0 +1,94 @@
+version: 2
+defaults:
+  working_directory: ~/async-bmp280
+  docker:
+    - image: 'circleci/node:dubnium-stretch'
+jobs:
+  checkout:
+    working_directory: ~/async-bmp280
+    docker:
+      - image: 'circleci/node:dubnium-stretch'
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/async-bmp280
+      - run:
+          name: 'Install Dependencies'
+          command: 'yarn install'
+      - persist_to_workspace:
+          root: .
+          paths: .
+  build:
+    working_directory: ~/async-bmp280
+    docker:
+      - image: 'circleci/node:dubnium-stretch'
+    steps:
+      - attach_workspace:
+          at: ~/async-bmp280
+      - run:
+          name: build
+          command: 'yarn build'
+      - persist_to_workspace:
+          root: .
+          paths: dist
+  test:
+    working_directory: ~/async-bmp280
+    docker:
+      - image: 'circleci/node:dubnium-stretch'
+    steps:
+      - attach_workspace:
+          at: ~/async-bmp280
+      - run:
+          name: Test
+          command: 'yarn test'
+  lint:
+    working_directory: ~/async-bmp280
+    docker:
+      - image: 'circleci/node:dubnium-stretch'
+    steps:
+      - attach_workspace:
+          at: ~/async-bmp280
+      - run:
+          name: Lint
+          command: 'yarn lint'
+  release:
+    working_directory: ~/async-bmp280
+    docker:
+      - image: 'circleci/node:dubnium-stretch'
+    steps:
+      - attach_workspace:
+          at: ~/async-bmp280
+      - run:
+          name: Add github ssh keys
+          command: mkdir ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - run:
+          name: Configure git email
+          command: git config --global user.email $GH_EMAIL
+      - run:
+          name: Configure git name
+          command: git config --global user.name $GH_NAME
+      - run:
+          name: Release
+          command: yarn release
+workflows:
+  version: 2
+  main_flow:
+    jobs:
+      - checkout
+      - build:
+          requires:
+            - checkout
+      - test:
+          requires:
+            - checkout
+      - lint:
+          requires:
+            - checkout
+      - release:
+          requires:
+            - build
+            - test
+            - lint
+          filters:
+            branches:
+              only: master
