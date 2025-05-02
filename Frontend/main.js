@@ -11,7 +11,8 @@
   
 
 // URL der API
-const API_URL = 'testPressureData.json'; // Beispiel: Du musst ggf. den Pfad anpassen
+// http://151.248.132.26:3000/api/pressure/history
+const API_URL = 'testPressureData.json'; // Ersetze dies mit der tatsächlichen URL der API
 
 let allPressureData = [];
 let currentYear = new Date().getFullYear();
@@ -90,12 +91,23 @@ function renderList() {
             const formattedDate = new Date(entry.date).toLocaleDateString('de-DE');
 
             // Ersetze die Platzhalter im geklonten Template
-            const pressureText = li.querySelector('.pressure-text');
+            const pressureText = li.querySelector('.pressure-value');
             if (pressureText) {
                 pressureText.textContent = `${formattedDate}: ${entry.averagePressure.toFixed(2)} hPa`;
-                pressureText.addEventListener('click', () => toggleChart(entry.date));
             }
 
+            // Damit bei Klick auf Padding der Chart auch getoggelt wird
+            const dayEntry = li.querySelector('.day-entry');
+            if (dayEntry) {
+                dayEntry.addEventListener('click', (event) => {
+                    if (!event.target.classList.contains('pressure-slider') &&
+                        !event.target.classList.contains('slider-value')) {
+                        toggleChart(entry.date);
+                    }
+                });
+            }
+
+            // Füge den Slider und den Chart-Container hinzu
             const slider = li.querySelector('.pressure-slider');
             if (slider) {
                 slider.id = `slider-${entry.date}`;
@@ -104,15 +116,37 @@ function renderList() {
                     const sliderValue = document.getElementById(`slider-value-${entry.date}`);
                     if (sliderValue) {
                         sliderValue.textContent = event.target.value;
-                        console.log(`Slider value for ${entry.date}: ${event.target.value}`);
                     }
+                
+                    const dayEntry = slider.closest('.day-entry'); // Finde das zugehörige day-entry Element
+                
+                    // Farbe basierend auf dem Slider-Wert berechnen (5 Stufen)
+                    let color;
+                    if (slider.value <= 2) {                        
+                        color = 'green';
+                    } else if (slider.value <= 4) {
+                        color = 'yellowgreen';
+                    } else if (slider.value <= 6) {
+                        color = 'orange';
+                    } else if (slider.value <= 8) {
+                        color = 'orangered';
+                    } else {
+                        color = 'red';
+                    }
+                
+                    // CSS-Variable auf dem day-entry Element aktualisieren
+                    if (dayEntry) {
+                        dayEntry.style.setProperty('--day-entry-bg', color);
+                    }
+                
+                    console.log(`Slider value for ${entry.date}: ${slider.value}`);
                 });
             }
 
             const sliderValueSpan = li.querySelector('.slider-value');
             if (sliderValueSpan) {
                 sliderValueSpan.id = `slider-value-${entry.date}`;
-                sliderValueSpan.textContent = '1'; // Standardwert
+                sliderValueSpan.textContent = '1'; // Startwert des Sliders
             }
 
             const chartContainer = li.querySelector('.chart-container');
@@ -196,8 +230,11 @@ function drawChart(dateKey) {
     }
 }
 
+
 window.onload = function() {
-    fetchPressureData();
+    fetchPressureData();    // Daten abrufen und Liste rendern
+
+    // Event-Listener für die Navigation zwischen Monaten
     document.getElementById('prev-month').addEventListener('click', () => {
         if (currentMonth === 0) {
             currentMonth = 11;
