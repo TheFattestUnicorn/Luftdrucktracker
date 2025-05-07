@@ -3,6 +3,7 @@ const sqlite3 = require('better-sqlite3');
 const path = require('path');
 const { Bus } = require('async-i2c-bus');
 const { BMP280 } = require('async-bmp280');
+const cors = require('cors'); // Import the cors package
 
 const app = express();
 const port = 3000;
@@ -20,6 +21,8 @@ try {
   process.exit(1);
 }
 
+// Enable CORS for all routes
+app.use(cors()); // Use the cors middleware
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
