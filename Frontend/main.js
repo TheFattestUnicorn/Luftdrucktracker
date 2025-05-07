@@ -1,16 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const pressureList = document.getElementById('pressure-list');
-    const listItemTemplate = document.getElementById('pressure-list-item-template').content;
-    const currentMonthSpan = document.getElementById('current-month');
-    const prevMonthButton = document.getElementById('prev-month');
-    const nextMonthButton = document.getElementById('next-month');
+    const pressureList = document.querySelector('#pressure-list');
+    const listItemTemplate = document.querySelector('#pressure-list-item-template').content;
+    const currentMonthSpan = document.querySelector('#current-month');
+    const prevMonthButton = document.querySelector('#prev-month');
+    const nextMonthButton = document.querySelector('#next-month');
 
-    let currentMonth = new Date(); // Startdatum ist der aktuelle Monat
-    let allPressureData = [];
-    let chartInstances = {}; // Speichert laufende Charts
-
-    // URL der API (wird jetzt aus der Konstante verwendet)
     const API_URL = 'testPressureData.json';
+    const CLICK = 'click';
+    const DISPLAY_NONE = 'none';
+    const DISPLAY_FLEX = 'flex';
+    const OPEN_CLASS = 'open';
+
+    let currentMonth = new Date();
+    let allPressureData = [];
+    let chartInstances = {};
 
     // Funktion zum Abrufen der Luftdruck-Druckdaten
     async function fetchPressureData() {
@@ -29,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function saveNoteAndSliderValue(date, note, sliderValue) {
-        // const API_URL = 'testSaveData.json'; // Ersetze dies durch die tatsächliche URL deiner API
+        const API_URL = 'http://fhnw-pi.hope.arpa:3000/api/migraine'; // Ersetze dies durch die tatsächliche URL deiner API
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -94,104 +97,106 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Funktion zum Rendern der Liste der Tage mit Slidern und Charts
+    function handleSliderInput(event, dayEntry) {
+        event.stopPropagation();
+        const sliderValue = event.target.value;
+        event.target.nextElementSibling.textContent = sliderValue;
+        const color = getSliderColor(sliderValue);
+        dayEntry.style.setProperty('--day-entry-bg', color);
+    }
+
+    function getSliderColor(value) {
+        const colors = [
+            'green',
+            'lightgreen',
+            'yellowgreen',
+            'lightyellow',
+            'yellow',
+            'lightorange',
+            'orange',
+            'lightcoral',
+            'orangered',
+            'red'
+        ];
+        return colors[value - 1] || colors[0]; // value ist 1-basiert, Array ist 0-basiert
+    }
+
+    function handleDayEntryClick(event, date, toggleChart) {
+        if (!event.target.classList.contains('pressure-slider') &&
+            !event.target.classList.contains('slider-value')) {
+            toggleChart(date);
+        }
+    }
+
+    function toggleChart(dateKey) {
+        const container = document.getElementById(`convertible-${dateKey}`);
+        container.classList.toggle(OPEN_CLASS);
+        container.style.display = container.classList.contains(OPEN_CLASS) ? DISPLAY_FLEX : DISPLAY_NONE;
+
+        if (container.classList.contains(OPEN_CLASS) && !chartInstances[dateKey]) {
+            drawChart(dateKey);
+        } else if (!container.classList.contains(OPEN_CLASS) && chartInstances[dateKey]) {
+            chartInstances[dateKey].destroy();
+            delete chartInstances[dateKey];
+        }
+    }
+
     function renderList() {
         pressureList.innerHTML = '';
         const templateContent = listItemTemplate;
         const currentYear = currentMonth.getFullYear();
         const currentMonthIndex = currentMonth.getMonth();
         displayMonth();
-    
+
         const dailyAverages = calculateDailyAverages(allPressureData);
-    
+
         const filteredData = dailyAverages.filter(entry => {
             const date = new Date(entry.date);
             return date.getFullYear() === currentYear && date.getMonth() === currentMonthIndex;
         });
-    
+
         if (filteredData.length === 0) {
             const li = document.createElement('li');
             li.textContent = 'Keine Daten für diesen Monat verfügbar.';
             pressureList.appendChild(li);
             return;
         }
-    
+
         filteredData.forEach(entry => {
             const listItem = document.importNode(templateContent, true);
             const formattedDate = new Date(entry.date).toLocaleDateString('de-DE');
-    
+
             listItem.querySelector('.pressure-value').textContent = `${formattedDate}: ${entry.averagePressure.toFixed(2)} hPa`;
-    
+
             const dayEntry = listItem.querySelector('.day-entry');
             const slider = listItem.querySelector('.pressure-slider');
             const sliderValue = listItem.querySelector('.slider-value');
-            const chartContainer = listItem.querySelector('.chart-container');
-            const canvas = listItem.querySelector('canvas');
+            const convertible = listItem.querySelector('.convertible');
+            const chartContainer = listItem.querySelector('canvas');
             const notesTextarea = listItem.querySelector('textarea');
-            const saveNoteButton = listItem.querySelector('.save-note-button');            
-    
-            saveNoteButton.addEventListener('click', () => {
+            const saveNoteButton = listItem.querySelector('.save-note-button');
+
+            saveNoteButton.addEventListener(CLICK, () => {
                 const noteText = notesTextarea.value;
                 const date = saveNoteButton.getAttribute('data-date');
-                const sliderValue = slider.value; // Holen des aktuellen Slider-Werts
-    
-                saveNoteAndSliderValue(date, noteText, sliderValue);    // Speichern der Notiz und des Slider-Werts
+                const sliderValue = slider.value;
+                saveNoteAndSliderValue(date, noteText, sliderValue);
             });
-    
+
             slider.id = `slider-${entry.date}`;
             sliderValue.id = `slider-value-${entry.date}`;
+            convertible.id = `convertible-${entry.date}`;
             chartContainer.id = `chart-${entry.date}`;
-            canvas.id = `canvas-${entry.date}`;
-            notesTextarea.id = `notes-${entry.date}`; // ID für das Textfeld
-            chartContainer.style.display = 'none';
-    
-            slider.addEventListener('input', function(event) {
-                event.stopPropagation();
-                sliderValue.textContent = this.value;
-                let color;
-                if (this.value <= 2) {
-                    color = 'green';
-                } else if (this.value <= 4) {
-                    color = 'yellowgreen';
-                } else if (this.value <= 6) {
-                    color = 'orange';
-                } else if (this.value <= 8) {
-                    color = 'orangered';
-                } else {
-                    color = 'red';
-                }
-                dayEntry.style.setProperty('--day-entry-bg', color);
-                console.log(`Slider value for ${entry.date}: ${this.value}`);   // Debugging-Ausgabe
-            });
-    
+            notesTextarea.id = `notes-${entry.date}`;
+            convertible.style.display = DISPLAY_NONE;
+
+            slider.addEventListener('input', (event) => handleSliderInput(event, dayEntry));
+            dayEntry.addEventListener(CLICK, (event) => handleDayEntryClick(event, entry.date, toggleChart));
+
             sliderValue.textContent = '1';
-    
-            dayEntry.addEventListener('click', (event) => {
-                if (!event.target.classList.contains('pressure-slider') &&
-                    !event.target.classList.contains('slider-value')) {
-                    toggleChart(entry.date);
-                }
-            });
-    
+
             pressureList.appendChild(listItem);
         });
-    }
-
-    function toggleChart(dateKey) {
-        const container = document.getElementById(`chart-${dateKey}`);
-        if (container.style.display === 'none') {
-            container.style.display = 'flex';
-            container.classList.add('open');
-            if (!chartInstances[dateKey]) {
-                drawChart(dateKey);
-            }
-        } else {
-            container.style.display = 'none';
-            container.classList.remove('open');
-            if (chartInstances[dateKey]) {
-                chartInstances[dateKey].destroy();
-                delete chartInstances[dateKey];
-            }
-        }
     }
 
     function drawChart(dateKey) {
@@ -200,10 +205,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const labels = dayData.map(entry => new Date(entry.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
         const pressures = dayData.map(entry => entry.pressure);
-        const canvas = document.getElementById(`canvas-${dateKey}`);
+        const chartContainer = document.getElementById(`chart-${dateKey}`);
 
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
+        if (chartContainer) {
+            const ctx = chartContainer.getContext('2d');
             if (chartInstances[dateKey]) {
                 chartInstances[dateKey].destroy();
                 delete chartInstances[dateKey];
