@@ -1,3 +1,13 @@
+
+/*
+{ // für das Lesen von Notizen und Slider-Werten
+  "2025-04-01": { "slider": 6, "note": "Kopfschmerzen" },
+  "2025-04-02": { "slider": 3, "note": "" },
+  ...
+}
+*/
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const pressureList = document.querySelector('#pressure-list');
     const listItemTemplate = document.querySelector('#pressure-list-item-template').content;
@@ -5,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevMonthButton = document.querySelector('#prev-month');
     const nextMonthButton = document.querySelector('#next-month');
 
-    const API_URL = 'testPressureData.json';
+    const API_URL = 'http://fatunicorn.ch:3000/api';
     const CLICK = 'click';
     const DISPLAY_NONE = 'none';
     const DISPLAY_FLEX = 'flex';
@@ -13,28 +23,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentMonth = new Date();
     let allPressureData = [];
+    let allStoredData = [];
     let chartInstances = {};
 
     // Funktion zum Abrufen der Luftdruck-Druckdaten
     async function fetchPressureData() {
         try {
-            const response = await fetch(API_URL);
+            const response = await fetch(API_URL + '/pressure/history');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
             allPressureData = data.pressures;
             renderList();
+            await loadSavedData(); // Lade die gespeicherten Daten nach dem Rendern der Liste
         } catch (error) {
             console.error('Fehler beim Laden der Druckdaten:', error);
             pressureList.innerHTML = '<li>Fehler beim Laden der Daten.</li>';
         }
     }
 
-    async function saveNoteAndSliderValue(date, note, sliderValue) {
-        const API_URL = 'http://fhnw-pi.hope.arpa:3000/api/migraine'; // Ersetze dies durch die tatsächliche URL deiner API
+    async function loadSavedData() {
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch('testSaveData.json'); // Oder deine API_URL + '/api/migraine'
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            allStoredData = data;
+            console.log('Gespeicherte Daten geladen:', allStoredData);
+
+            // Daten verwenden, um die UI zu aktualisieren
+            for (const date in allStoredData) {
+                console.log('Datum:', date, 'Eintrag:', allStoredData[date]);
+                const entry = allStoredData[date];
+                const slider = document.getElementById(`slider-${entry.timestamp}`);
+                const sliderValue = document.getElementById(`slider-value-${entry.timestamp}`);
+                const notesTextarea = document.getElementById(`notes-${entry.timestamp}`);
+                if (slider && sliderValue) {
+                    slider.value = entry.severity;
+                    sliderValue.textContent = entry.severity;
+                    const color = getSliderColor(entry.severity);
+                    slider.parentElement.parentElement.style.setProperty('--day-entry-bg', color);
+                }
+                if (notesTextarea) {
+                    notesTextarea.value = entry.note;
+                }
+            }
+
+
+        } catch (error) {
+            console.error('Fehler beim Laden der gespeicherten Daten:', error);
+            allStoredData = {}; // Stelle sicher, dass allStoredData immer ein Objekt ist
+        }
+    }
+
+    async function saveNoteAndSliderValue(date, note, sliderValue) {
+        try {
+            const response = await fetch(API_URL + '/pressure/history', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -165,9 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
         filteredData.forEach(entry => {
             const listItem = document.importNode(templateContent, true);
             const formattedDate = new Date(entry.date).toLocaleDateString('de-DE');
-
-            listItem.querySelector('.pressure-value').textContent = `${formattedDate}: ${entry.averagePressure.toFixed(2)} hPa`;
-
             const dayEntry = listItem.querySelector('.day-entry');
             const slider = listItem.querySelector('.pressure-slider');
             const sliderValue = listItem.querySelector('.slider-value');
@@ -176,9 +219,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const notesTextarea = listItem.querySelector('textarea');
             const saveNoteButton = listItem.querySelector('.save-note-button');
 
+            listItem.querySelector('.pressure-value').textContent = `${formattedDate}: ⌀${entry.averagePressure.toFixed(2)} hPa`;
+
             saveNoteButton.addEventListener(CLICK, () => {
                 const noteText = notesTextarea.value;
-                const date = saveNoteButton.getAttribute('data-date');
+                const date = entry.date // Format: YYYY-MM-DD;
                 const sliderValue = slider.value;
                 saveNoteAndSliderValue(date, noteText, sliderValue);
             });
