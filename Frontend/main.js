@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // URL der API (wird jetzt aus der Konstante verwendet)
     const API_URL = 'testPressureData.json';
 
-    // Funktion zum Abrufen der Druckdaten
+    // Funktion zum Abrufen der Luftdruck-Druckdaten
     async function fetchPressureData() {
         try {
             const response = await fetch(API_URL);
@@ -25,6 +25,35 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Fehler beim Laden der Druckdaten:', error);
             pressureList.innerHTML = '<li>Fehler beim Laden der Daten.</li>';
+        }
+    }
+
+    async function saveNoteAndSliderValue(date, note, sliderValue) {
+        // const API_URL = 'testSaveData.json'; // Ersetze dies durch die tatsächliche URL deiner API
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    date: date,
+                    note: note,
+                    sliderValue: sliderValue
+                })
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const responseData = await response.json();
+            console.log('Daten erfolgreich gesendet:', responseData);
+            // Hier kannst du dem Benutzer eine Rückmeldung geben (z.B. "Gespeichert!")
+    
+        } catch (error) {
+            console.error('Fehler beim Senden der Daten:', error);
+            // Hier kannst du dem Benutzer eine Fehlermeldung anzeigen
         }
     }
 
@@ -98,14 +127,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const chartContainer = listItem.querySelector('.chart-container');
             const canvas = listItem.querySelector('canvas');
             const notesTextarea = listItem.querySelector('textarea');
-            const saveNoteButton = listItem.querySelector('.save-note-button');
+            const saveNoteButton = listItem.querySelector('.save-note-button');            
     
             saveNoteButton.addEventListener('click', () => {
                 const noteText = notesTextarea.value;
                 const date = saveNoteButton.getAttribute('data-date');
-                console.log(`Notiz für ${date}: ${noteText}`);
-                // Hier würdest du die Notiz tatsächlich speichern (z.B. an einen Server senden)
-                // In diesem Beispiel geben wir sie nur in der Konsole aus.
+                const sliderValue = slider.value; // Holen des aktuellen Slider-Werts
+    
+                saveNoteAndSliderValue(date, noteText, sliderValue);    // Speichern der Notiz und des Slider-Werts
             });
     
             slider.id = `slider-${entry.date}`;
