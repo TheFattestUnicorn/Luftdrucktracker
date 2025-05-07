@@ -24,7 +24,6 @@ button {
 
 #pressure-list {
     list-style-type: none;
-    padding: 0;
 }
 
 #pressure-list li {
@@ -36,7 +35,6 @@ button {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Für schönes Aufklappen */
 .day-entry {
     cursor: pointer;
     font-weight: bold;
@@ -53,25 +51,103 @@ button {
     opacity: 0.8; /* Leicht transparent beim Hover */
 }
 
-/* Animation beim Aufklappen */
 .chart-container {
     overflow: hidden;
-    max-height: 0;
-    opacity: 0;
     transition: max-height 0.5s ease, opacity 0.5s ease;
-    width: 50%;
-    max-width: 500px;
-    margin-top: 1rem;
+    width: 100%; /* Ändern von 50% zu 100%, um den verfügbaren Platz besser zu nutzen */
+    max-width: none; /* Entfernen der Breitenbeschränkung, da wir flexibel sein wollen */
+    flex-direction: row; /* Items horizontal anordnen */
+    align-items: center; /* Vertikal zentrieren */
 }
 
 .chart-container.open {
-    max-height: 600px; /* Genug Platz für den Chart */
+    max-height: 600px;
     opacity: 1;
+}
+
+.notes-container {
+    width: 50%;
+    display: flex;
+    flex-direction: column; /* Textarea und Button untereinander */
+    margin-left: 1rem;
+}
+
+.notes-container textarea {
+    width: 100%;
+    height: 150px;
+    box-sizing: border-box;
+    margin-bottom: 0.5rem; /* Abstand zum Button */
+}
+
+.save-note-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+.save-note-button:hover {
+    background-color: #3e8e41;
+}
+
+@media (max-width: 600px) {
+    .notes-container {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 1rem; /* Abstand zum Chart */
+    }
+}
+
+#pressure-list textarea {
+    width: 100%;
+    height: 100%;
+    margin-top: 0.5rem;
+    box-sizing: border-box;
+}
+
+.chart-container textarea {
+    padding: 0.5rem; /* Innenabstand für das Textfeld */
+    border: 1px solid #ccc; /* Rahmen für das Textfeld */
+    border-radius: 8px; /* Abgerundete Ecken */
+    resize: none; /* Verhindert das Ändern der Größe des Textfeldes */
+    overflow: auto; /* Scrollen bei Überlauf */
+    font-size: 0.9rem; /* Schriftgröße im Textfeld */
+    color: #333; /* Textfarbe im Textfeld */
+    background-color: #fff; /* Hintergrundfarbe des Textfeldes */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Schatten für das Textfeld */
+    transition: all 0.3s ease; /* Sanfter Übergang für alle Eigenschaften */
+    margin-right: 1rem; /* Abstand zwischen Chart und Textfeld */
+    margin-left: 1rem; /* Abstand zwischen Chart und Textfeld */
+}
+
+.chart-line {
+    /* Stil für die Linie des Charts */
+    borderColor: 'blue';
+    backgroundColor: 'lightblue';
+    tension: 0.3;
+    pointRadius: 3;
+}
+
+.chart-scales {
+    /* Stile für die Achsenbeschriftungen */
+    display: block; /* Erlaubt das Anwenden von Achsenbeschriftungsstilen */
 }
 
 @media (max-width: 600px) {
     .chart-container {
+        flex-direction: column; /* Bei kleinen Bildschirmen wieder vertikal */
+        align-items: stretch; /* Items über die volle Breite strecken */
+    }
+    .chart-container canvas {
         width: 100%;
+    }
+    .chart-container textarea {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 1rem; /* Abstand zum Chart bei vertikaler Anordnung */
     }
 }
 
@@ -108,18 +184,7 @@ button {
     --slider-color: green;
 }
 
-.chart-line {
-    /* Stil für die Linie des Charts */
-    borderColor: 'blue';
-    backgroundColor: 'lightblue';
-    tension: 0.3;
-    pointRadius: 3;
-}
 
-.chart-scales {
-    /* Stile für die Achsenbeschriftungen */
-    display: block; /* Erlaubt das Anwenden von Achsenbeschriftungsstilen */
-}
 
 
 

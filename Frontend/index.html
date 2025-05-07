@@ -29,11 +29,14 @@
                 <span class="pressure-value">{date}</span>
                 <div class="pressure-slider-container">
                     <input type="range" min="1" max="10" value="1" class="pressure-slider" id="slider-{date}">
-                    <span class="slider-value" id="slider-value-{date}">1</span> <!-- Startwert des Sliders-->
+                    <span class="slider-value" id="slider-value-{date}">1</span>
                 </div>
             </div>
             <div class="chart-container" id="chart-{date}" style="display:none; margin-top: 1rem;">
                 <canvas id="canvas-{date}"></canvas>
+                <div class="notes-container">  <textarea id="notes-{date}" placeholder="Notizen hinzufügen"></textarea>
+                  <button class="save-note-button" data-date="{date}">Speichern</button>
+                </div>
             </div>
         </li>
     </template>
