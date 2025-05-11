@@ -24,142 +24,44 @@ button {
 
 #pressure-list {
     list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 2000px;
+    margin: 0 auto; /* Zentriert die Liste */
 }
 
 #pressure-list li {
-    position: relative;
-    background: white;
-    margin: 1rem 0; /* Erhöht den vertikalen Abstand */
-    /*padding: 0.5rem;*/
+    margin: 0.4rem 0;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%; /* Nimmt die volle Breite der Liste ein */
 }
 
 .day-entry {
     cursor: pointer;
     font-weight: bold;
     padding: 0.5rem;
-    background-color: var(--day-entry-bg, #dcdcdc); /* Standardfarbe */
+    background-color: var(--day-entry-bg, #dcdcdc);
     border-radius: 8px;
-    display: flex; /* Für die horizontale Anordnung */
-    align-items: center; /* Zentriert die Elemente vertikal */
-    justify-content: space-between; /* Verteilt den Platz gleichmäßig */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .day-entry:hover {
-    transition: opacity 0.3s ease; /* Sanfter Übergang der Hintergrundfarbe */
-    opacity: 0.8; /* Leicht transparent beim Hover */
+    transition: opacity 0.3s ease;
+    opacity: 0.8;
 }
 
-.chart-container {
-    overflow: hidden;
-    transition: max-height 0.5s ease, opacity 0.5s ease;
-    width: 100%; /* Ändern von 50% zu 100%, um den verfügbaren Platz besser zu nutzen */
-    max-width: none; /* Entfernen der Breitenbeschränkung, da wir flexibel sein wollen */
-    flex-direction: row; /* Items horizontal anordnen */
-    align-items: center; /* Vertikal zentrieren */
-}
-
-.chart-container.open {
-    max-height: 600px;
-    opacity: 1;
-}
-
-.notes-container {
-    width: 50%;
-    display: flex;
-    flex-direction: column; /* Textarea und Button untereinander */
-    margin-left: 1rem;
-}
-
-.notes-container textarea {
-    width: 100%;
-    height: 150px;
-    box-sizing: border-box;
-    margin-bottom: 0.5rem; /* Abstand zum Button */
-}
-
-.save-note-button {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
-    cursor: pointer;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-}
-
-.save-note-button:hover {
-    background-color: #3e8e41;
-}
-
-@media (max-width: 600px) {
-    .notes-container {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 1rem; /* Abstand zum Chart */
-    }
-}
-
-#pressure-list textarea {
-    width: 100%;
-    height: 100%;
-    margin-top: 0.5rem;
-    box-sizing: border-box;
-}
-
-.chart-container textarea {
-    padding: 0.5rem; /* Innenabstand für das Textfeld */
-    border: 1px solid #ccc; /* Rahmen für das Textfeld */
-    border-radius: 8px; /* Abgerundete Ecken */
-    resize: none; /* Verhindert das Ändern der Größe des Textfeldes */
-    overflow: auto; /* Scrollen bei Überlauf */
-    font-size: 0.9rem; /* Schriftgröße im Textfeld */
-    color: #333; /* Textfarbe im Textfeld */
-    background-color: #fff; /* Hintergrundfarbe des Textfeldes */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Schatten für das Textfeld */
-    transition: all 0.3s ease; /* Sanfter Übergang für alle Eigenschaften */
-    margin-right: 1rem; /* Abstand zwischen Chart und Textfeld */
-    margin-left: 1rem; /* Abstand zwischen Chart und Textfeld */
-}
-
-.chart-line {
-    /* Stil für die Linie des Charts */
-    borderColor: 'blue';
-    backgroundColor: 'lightblue';
-    tension: 0.3;
-    pointRadius: 3;
-}
-
-.chart-scales {
-    /* Stile für die Achsenbeschriftungen */
-    display: block; /* Erlaubt das Anwenden von Achsenbeschriftungsstilen */
-}
-
-@media (max-width: 600px) {
-    .chart-container {
-        flex-direction: column; /* Bei kleinen Bildschirmen wieder vertikal */
-        align-items: stretch; /* Items über die volle Breite strecken */
-    }
-    .chart-container canvas {
-        width: 100%;
-    }
-    .chart-container textarea {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 1rem; /* Abstand zum Chart bei vertikaler Anordnung */
-    }
-}
-
-/* Zeigt den Rohwert an */
 .pressure-value {
-    flex-grow: 1; /* Nimmt den verfügbaren Platz ein */
+    flex-grow: 0.1;
     display: flex;
-    justify-content: space-between; /* Verteilt den Platz gleichmäßig */
-    align-items: center; /* Zentriert die Elemente vertikal */
+    justify-content: space-between;
+    align-items: center;
     padding: 0.5rem;
-    background-color: #f9f9f9; /* Heller Hintergrund für den Wert */
-    border-radius: 8px; /* Abgerundete Ecken */
+    background-color: #f9f9f9;
+    border-radius: 8px;
 }
 
 .pressure-slider-container {
@@ -168,7 +70,7 @@ button {
 }
 
 .slider-value {
-    margin-left: 0.5rem; /* Abstand vom Slider */
+    margin-left: 0.5rem;
     font-size: 0.8rem;
     color: #555;
     vertical-align: middle;
@@ -178,18 +80,113 @@ button {
 }
 
 .pressure-slider {
-    width: 100px; /* Breite des Sliders */
-    margin-left: 1rem; /* Abstand vom Text */
-    vertical-align: middle; /* Zentriert den Slider vertikal */
-    --slider-color: green;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: rgb(119, 119, 119);
+    border-radius: 5px;
+    outline: none;
 }
 
+.convertible {
+    overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.5s ease;
+    width: 100%;
+    max-width: none;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+}
 
+.convertible.open {
+    max-height: 400px;  /* Maximale Höhe für den offenen Zustand */
+    opacity: 1;
+}
 
+.notes-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 50%; /* Nimmt Hälfte des Convertible-Bereichs */
+    margin-left: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 0.6rem;
+    overflow: hidden;
+    flex: 1; /* Nimmt den verfügbaren Platz in Convertible ein */
+}
 
+.notes-container textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0.5rem;
+    flex-grow: 1; /* Nimmt den verfügbaren Platz im Notes-Container ein */
+    resize: none;
+}
 
+.convertible textarea {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: auto;
+    font-size: 0.9rem;
+    color: #333;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
 
+.save-note-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    background-color: grey;
+    color: white;
+    border: black 1px solid;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
 
+.save-note-button:hover {
+    background-color: #3e8e41;
+}
 
+.chart-line {
+    /* Stil für die Linie des Charts */
+    borderColor: 'black';
+    backgroundColor: 'red';
+    tension: 0.3;
+    pointRadius: 3;
+}
 
+.chart-scales {
+    /* Stile für die Achsenbeschriftungen */
+    display: block;
+}
 
+@media (max-width: 600px) {
+    .convertible {
+        flex-direction: column; /* Ändere zu column, um die Elemente vertikal anzuordnen */
+        align-items: stretch; /* Stelle sicher, dass die Elemente die volle Breite einnehmen */
+    }
+
+    .convertible canvas { /* Spezifischer für das Chart-Element */
+        width: 100%; /* Stelle sicher, dass der Chart die volle Breite hat */
+        order: 1; /* Setze die Reihenfolge des Charts (optional, standardmäßig 0) */
+    }
+
+    .convertible .notes-container { /* Spezifischer für den Notizen-Container */
+        width: 100%; /* Stelle sicher, dass der Notizen-Container die volle Breite hat */
+        margin-top: 1rem; /* Füge etwas Abstand zwischen Chart und Notizen hinzu */
+        margin-left: 0; /* Entferne den linken Rand */
+        order: 2; /* Setze die Reihenfolge des Notizen-Containers */
+    }
+
+    .convertible textarea {
+        width: 100%; /* Stelle sicher, dass das Textfeld die volle Breite hat */
+        margin-left: 0; /* Entferne den linken Rand */
+        margin-top: 1rem; /* Füge oberen Rand hinzu, falls notwendig */
+    }
+}
