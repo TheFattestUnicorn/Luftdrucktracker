@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let chartInstances = {}; // Speichert laufende Charts
 
     // URL der API (wird jetzt aus der Konstante verwendet)
-    const API_URL = 'testPressureData.json';
+    //const API_URL = 'testPressureData.json';
+    const API_URL = 'https://migr-api.fatunicorn.ch/api/pressure/history';
 
     // Funktion zum Abrufen der Luftdruck-Druckdaten
     async function fetchPressureData() {

@@ -1,5 +1,5 @@
-import { Bus } from 'async-i2c-bus';
-import { BMP280 } from 'async-bmp280'; // Import BMP280 from the correct package
+const { Bus } = require('async-i2c-bus');
+const { BMP280 } = require('async-bmp280'); // Import BMP280 from the correct package
 
 const main = async () => {
   const busNumber = 1;

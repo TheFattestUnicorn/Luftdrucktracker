@@ -16,13 +16,15 @@ try {
   // Connect to the SQLite database
   db = new sqlite3(path.join(__dirname, 'weather_and_migraine.db'));
   console.log('Connected to the database.');
+
+
 } catch (err) {
   console.error('Error opening database:', err.message);
   process.exit(1);
 }
 
-// Enable CORS for all routes
-app.use(cors()); // Use the cors middleware
+// Enable CORS for all routes, including preflight requests
+app.use(cors());
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
@@ -58,6 +60,8 @@ app.get('/api/pressure/history', (req, res) => {
   } catch (err) {
     console.error('Error getting pressure history:', err.message);
     res.status(500).json({ error: 'Internal server error' });
+    // Important: Send a proper error response to the client
+    res.status(500).json({ error: 'Failed to retrieve pressure history' });
   }
 });
 
@@ -73,25 +77,46 @@ app.post('/api/pressure', (req, res) => {
   res.status(201).json({ message: 'Pressure reading added successfully', timestamp: new Date().toISOString(), pressure_hpa });
 });
 
-app.get('/api/migraine', (req, res) => {
-  const { startTime, endTime } = req.query;
+// Neuer Endpunkt zum Speichern von Notizen und Slider-Werten
+app.post('/api/pressure/history', (req, res) => {
+  const { date, note, sliderValue } = req.body;
 
-  if (!startTime || !endTime) {
-    res.status(400).json({ error: 'Both startTime and endTime are required in ISO 8601 format.' });
+  if (!date || note === undefined || sliderValue === undefined) {
+    res.status(400).json({ error: 'Date, note, and sliderValue are required.' });
     return;
   }
 
   try {
-    const rows = db.prepare(`
-      SELECT timestamp, severity
-      FROM migraine_events
-      WHERE timestamp BETWEEN ? AND ?
-      ORDER BY timestamp ASC
-    `).all(startTime, endTime);
-    res.json(rows);
+    // **Database Insert Change (Part 2):**
+    // Save the sliderValue to the severity column.
+    const stmt = db.prepare(`
+      INSERT INTO migraine_events (timestamp, severity, note)
+      VALUES (?, ?, ?)
+    `);
+    stmt.run(date, sliderValue, note); // Changed order to match new insert
+    console.log(`Inserted migraine data: date=${date}, severity=${sliderValue}, note=${note}`);
+    res.status(201).json({ message: 'Data saved successfully', date, severity: sliderValue, note }); //changed response
   } catch (error) {
-    console.error('Error fetching migraine events:', error.message);
+    console.error('Error saving data:', error.message);
     res.status(500).json({ error: 'Internal server error' });
+    // Important: Send a proper error response to the client
+    res.status(500).json({ error: 'Failed to save data' });
+  }
+});
+
+app.get('/api/migraine', (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT timestamp, severity, note
+      FROM migraine_events
+      ORDER BY timestamp ASC
+    `).all();
+    res.json(rows);
+  } catch (err) {
+    console.error('Error fetching migraine events:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+    // Important: Send a proper error response to the client
+    res.status(500).json({ error: 'Failed to retrieve migraine events' });
   }
 });
 
