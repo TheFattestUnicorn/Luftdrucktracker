@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevMonthButton = document.querySelector('#prev-month');
     const nextMonthButton = document.querySelector('#next-month');
 
-    const API_URL = 'http://fatunicorn.ch:3000/api';
+    const API_URL = 'https://migr-api.fatunicorn.ch/api';
     const CLICK = 'click';
     const DISPLAY_NONE = 'none';
     const DISPLAY_FLEX = 'flex';
