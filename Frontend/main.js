@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadSavedData() {
         try {
-            const response = await fetch('testSaveData.json'); // Oder deine API_URL + '/api/migraine'
+            const response = await fetch(API_URL + 'migraine'); // Oder deine API_URL + '/api/migraine'
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
