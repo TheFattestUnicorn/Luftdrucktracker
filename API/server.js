@@ -16,8 +16,6 @@ try {
   // Connect to the SQLite database
   db = new sqlite3(path.join(__dirname, 'weather_and_migraine.db'));
   console.log('Connected to the database.');
-
-
 } catch (err) {
   console.error('Error opening database:', err.message);
   process.exit(1);
@@ -65,20 +63,9 @@ app.get('/api/pressure/history', (req, res) => {
   }
 });
 
-app.post('/api/pressure', (req, res) => {
-  const { pressure_hpa } = req.body;
 
-  if (pressure_hpa === undefined || typeof pressure_hpa !== 'number') {
-    res.status(400).json({ error: 'Pressure reading is required and must be a number.' });
-    return;
-  }
-
-  insertPressureReading(pressure_hpa); // Use the function
-  res.status(201).json({ message: 'Pressure reading added successfully', timestamp: new Date().toISOString(), pressure_hpa });
-});
-
-// Neuer Endpunkt zum Speichern von Notizen und Slider-Werten
-app.post('/api/pressure/history', (req, res) => {
+// Endpunkt zum Speichern von Notizen und Slider-Werten
+app.post('/api/migraine', (req, res) => {
   const { date, note, sliderValue } = req.body;
 
   if (!date || note === undefined || sliderValue === undefined) {
