@@ -1,3 +1,9 @@
+/* Hinzufügen: Kleine Hand für den Slider */
+/* Anpassen des Layouts für verschiedene Bildschirmgrößen */
+/* Sanftes Aufklappen des Charts */
+/* Trennen von Datum und Luftdruckwert */
+/* Hintergrundfarbe von Day-Entry anpassen je nach Luftdruckwert? */
+
 body {
     font-family: Arial, sans-serif;
     margin: 2rem;
@@ -24,34 +30,29 @@ button {
 
 #pressure-list {
     list-style-type: none;
+    padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
     max-width: 2000px;
-    margin: 0 auto; /* Zentriert die Liste */
+    margin: 0 auto;
 }
 
 #pressure-list li {
     margin: 0.4rem 0;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    width: 100%; /* Nimmt die volle Breite der Liste ein */
 }
 
 .day-entry {
     cursor: pointer;
     font-weight: bold;
-    padding: 0.5rem;
-    background-color: var(--day-entry-bg, #dcdcdc);
-    border-radius: 8px;
+    padding: 0.4rem;
+    background-color: #dcdcdc99;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-
-.day-entry:hover {
-    transition: opacity 0.3s ease;
-    opacity: 0.8;
+    border: 1px solid #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .pressure-value {
@@ -71,8 +72,8 @@ button {
 
 .slider-value {
     margin-left: 0.5rem;
-    font-size: 0.8rem;
-    color: #555;
+    font-size: 1em;
+    color: #333;
     vertical-align: middle;
     width: 20px;
     display: inline-block;
@@ -82,51 +83,81 @@ button {
 .pressure-slider {
     -webkit-appearance: none;
     width: 100%;
-    height: 8px;
-    background: rgb(119, 119, 119);
-    border-radius: 5px;
-    outline: none;
+    background: linear-gradient(to right, green, yellow, orange, red);
+    height: 16px;
+    border-radius: 16px;
+    margin-left: 0.5rem;
+}
+
+.pressure-slider::-webkit-slider-thumb,
+.pressure-slider::-moz-range-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: var(--thumb-color, #fff);
+    border: 2px solid #333;
+    border-radius: 50%;
+    margin-top: -6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.pressure-slider::-webkit-slider-runnable-track,
+.pressure-slider::-moz-range-track,
+.pressure-slider::-ms-track {
+    background: linear-gradient(to right, green, yellow, orange, red);
+    height: 12px;
+    border-radius: 12px;
+    border: none;
+}
+
+.pressure-slider::-ms-track {
+    color: transparent;
 }
 
 .convertible {
     overflow: hidden;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
     transition: max-height 0.5s ease, opacity 0.5s ease;
     width: 100%;
-    max-width: none;
+    display: flex;
     flex-direction: row;
     align-items: stretch;
     justify-content: space-between;
+    margin-top: 0.6rem;
+    flex-wrap: wrap;
 }
 
 .convertible.open {
-    max-height: 400px;  /* Maximale Höhe für den offenen Zustand */
+    max-height: 400px;
     opacity: 1;
+}
+
+.convertible canvas {
+    flex: 1;
 }
 
 .notes-container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    width: 50%; /* Nimmt Hälfte des Convertible-Bereichs */
-    margin-left: 1rem;
     background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 0.6rem;
+    padding: 0.5rem;
     overflow: hidden;
-    flex: 1; /* Nimmt den verfügbaren Platz in Convertible ein */
+    flex: 1;
 }
 
 .notes-container textarea {
     width: 100%;
     box-sizing: border-box;
     margin-bottom: 0.5rem;
-    flex-grow: 1; /* Nimmt den verfügbaren Platz im Notes-Container ein */
+    flex-grow: 1;
     resize: none;
-}
-
-.convertible textarea {
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -134,8 +165,7 @@ button {
     font-size: 0.9rem;
     color: #333;
     background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .save-note-button {
@@ -145,48 +175,50 @@ button {
     background-color: grey;
     color: white;
     border: black 1px solid;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .save-note-button:hover {
     background-color: #3e8e41;
 }
 
-.chart-line {
-    /* Stil für die Linie des Charts */
-    borderColor: 'black';
-    backgroundColor: 'red';
-    tension: 0.3;
-    pointRadius: 3;
+.save-note-button.saved {
+    background-color: #4bba4e;
+    transform: scale(1.08);
 }
 
-.chart-scales {
-    /* Stile für die Achsenbeschriftungen */
-    display: block;
+.save-note-button.error {
+    background-color: #FF5733;
+    animation: shake 0.5s;
 }
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    10% { transform: translateX(-5px); }
+    30% { transform: translateX(5px); }
+    50% { transform: translateX(-5px); }
+    70% { transform: translateX(5px); }
+    90% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+
 
 @media (max-width: 600px) {
-    .convertible {
-        flex-direction: column; /* Ändere zu column, um die Elemente vertikal anzuordnen */
-        align-items: stretch; /* Stelle sicher, dass die Elemente die volle Breite einnehmen */
+    body {
+        margin: 1rem;
+        font-size: 0.9rem;
     }
 
-    .convertible canvas { /* Spezifischer für das Chart-Element */
-        width: 100%; /* Stelle sicher, dass der Chart die volle Breite hat */
-        order: 1; /* Setze die Reihenfolge des Charts (optional, standardmäßig 0) */
+    .convertible canvas {
+        width: 100%;
+        padding: 0.4rem;
     }
 
-    .convertible .notes-container { /* Spezifischer für den Notizen-Container */
-        width: 100%; /* Stelle sicher, dass der Notizen-Container die volle Breite hat */
-        margin-top: 1rem; /* Füge etwas Abstand zwischen Chart und Notizen hinzu */
-        margin-left: 0; /* Entferne den linken Rand */
-        order: 2; /* Setze die Reihenfolge des Notizen-Containers */
-    }
-
+    .convertible .notes-container,
     .convertible textarea {
-        width: 100%; /* Stelle sicher, dass das Textfeld die volle Breite hat */
-        margin-left: 0; /* Entferne den linken Rand */
-        margin-top: 1rem; /* Füge oberen Rand hinzu, falls notwendig */
+        width: 100%;
     }
 }
