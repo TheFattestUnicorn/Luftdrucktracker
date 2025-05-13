@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextMonthButton = document.querySelector('#next-month');
 
     // Konstanten & CSS-Elemente definieren
-    const API_URL = 'http://fatunicorn.ch:3000/api';
+    const API_URL = 'https://migr-api.fatunicorn.ch/api';
     const CLICK = 'click';
     const DISPLAY_NONE = 'none';
     const PRESSURE_SLIDER_CLASS = 'pressure-slider';
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // und zum Senden der Daten an den Server
     async function saveNoteAndSliderValue(date, note, sliderValue) {
         try {
-            const response = await fetch(API_URL + '/pressure/history', {
+            const response = await fetch(API_URL + '/migraine', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
