@@ -1,0 +1,16 @@
+[Unit]
+Description=Weather and Migraine Sensor Server
+After=network.target
+
+[Service]
+Type=simple
+User=simon
+Group=simon
+WorkingDirectory=/opt/Luftdrucktracker/API
+ExecStart=/usr/bin/node /opt/Luftdrucktracker/API/server.js
+Restart=on-failure
+RestartSec=10
+Environment=PATH=/usr/bin:/usr/local/bin
+
+[Install]
+WantedBy=multi-user.target

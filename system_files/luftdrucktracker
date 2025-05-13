@@ -1,0 +1,14 @@
+server {
+    listen 80;
+    server_name migrane.fatunicorn.ch;
+
+    root /opt/Luftdrucktracker/Frontend;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+	add_header Access-Control-Allow-Origin *;
+
+    }
+}
+
