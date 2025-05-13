@@ -63,6 +63,17 @@ app.get('/api/pressure/history', (req, res) => {
   }
 });
 
+app.post('/api/pressure', (req, res) => {
+  const { pressure_hpa } = req.body;
+
+  if (pressure_hpa === undefined || typeof pressure_hpa !== 'number') {
+    res.status(400).json({ error: 'Pressure reading is required and must be a number.' });
+    return;
+  }
+
+  insertPressureReading(pressure_hpa); // Use the function
+  res.status(201).json({ message: 'Pressure reading added successfully', timestamp: new Date().toISOString(), pressure_hpa });
+});
 
 // Endpunkt zum Speichern von Notizen und Slider-Werten
 app.post('/api/migraine', (req, res) => {
@@ -74,20 +85,37 @@ app.post('/api/migraine', (req, res) => {
   }
 
   try {
-    // **Database Insert Change (Part 2):**
-    // Save the sliderValue to the severity column.
-    const stmt = db.prepare(`
-      INSERT INTO migraine_events (timestamp, severity, note)
-      VALUES (?, ?, ?)
-    `);
-    stmt.run(date, sliderValue, note); // Changed order to match new insert
-    console.log(`Inserted migraine data: date=${date}, severity=${sliderValue}, note=${note}`);
-    res.status(201).json({ message: 'Data saved successfully', date, severity: sliderValue, note }); //changed response
+    // **Database Insert/Update Logic:**
+    // Check if a record with the given date already exists.
+    const existingRecord = db.prepare(`
+      SELECT timestamp FROM migraine_events WHERE timestamp = ?
+    `).get(date);
+
+    if (existingRecord) {
+      // Update the existing record.
+      const updateStmt = db.prepare(`
+        UPDATE migraine_events SET severity = ?, note = ? WHERE timestamp = ?
+      `);
+      updateStmt.run(sliderValue, note, date);
+      console.log(`Updated migraine data: date=${date}, severity=${sliderValue}, note=${note}`);
+      res.status(200).json({ message: 'Data updated successfully', date, severity: sliderValue, note }); // Changed status code to 200
+    } else {
+      // Insert a new record.
+      const insertStmt = db.prepare(`
+        INSERT INTO migraine_events (timestamp, severity, note)
+        VALUES (?, ?, ?)
+      `);
+      insertStmt.run(date, sliderValue, note);
+      console.log(`Inserted migraine data: date=${date}, severity=${sliderValue}, note=${note}`);
+      res.status(201).json({ message: 'Data saved successfully', date, severity: sliderValue, note });
+    }
+
+
   } catch (error) {
-    console.error('Error saving data:', error.message);
+    console.error('Error saving/updating data:', error.message);
     res.status(500).json({ error: 'Internal server error' });
     // Important: Send a proper error response to the client
-    res.status(500).json({ error: 'Failed to save data' });
+    res.status(500).json({ error: 'Failed to save/update data' });
   }
 });
 
