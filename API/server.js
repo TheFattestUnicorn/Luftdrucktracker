@@ -1,12 +1,21 @@
-const express = require('express');
-const sqlite3 = require('better-sqlite3');
-const path = require('path');
-const { Bus } = require('async-i2c-bus');
-const { BMP280 } = require('async-bmp280');
-const cors = require('cors'); // Import the cors package
+import express from 'express';
+import sqlite3 from 'better-sqlite3';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { Bus } from 'async-i2c-bus';
+import { BMP280 } from 'async-bmp280';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const port = 3000;
+
+const allowedOrigins = [
+  'https://migr-api.fatunicorn.ch',
+  'https://migrane.fatunicorn.ch'
+];
 
 let db; // Declare the database variable outside the try-catch
 let server;
@@ -21,8 +30,24 @@ try {
   process.exit(1);
 }
 
-// Enable CORS for all routes, including preflight requests
-app.use(cors());
+// CORS Middleware (allowing only GET and POST)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  console.log('Incoming Origin:', origin);
+  const allowedMethods = ['GET', 'POST', 'OPTIONS'];
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', allowedMethods.join(', '));
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    if (req.method === 'OPTIONS') {
+      res.status(204).end();
+      return;
+    }
+  }
+  next();
+});
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
@@ -183,6 +208,8 @@ process.on('SIGINT', () => {
   let dbClosed = false;
 
   const attemptExit = () => {
+    console.log('Attempt Exit serverClosed:', serverClosed, 'dbClosed:', dbClosed);
+
     if (serverClosed && dbClosed) {
       console.log('Exiting process.');
       process.exit();
@@ -211,15 +238,15 @@ process.on('SIGINT', () => {
   }
 
   if (db) {
-    db.close((err) => {
-      if (err) {
-        console.error('Error closing database:', err.message);
-      } else {
-        console.log('Closed the database connection.');
-      }
-      dbClosed = true;
-      attemptExit();
-    });
+    try {
+      console.log('Closing database connection...');
+      db.close();
+      console.log('Closed the database connection.');
+    } catch (err) {
+      console.error('Error closing database:', err.message);
+    }
+    dbClosed = true;
+    attemptExit();
   } else {
     dbClosed = true;
     attemptExit();
