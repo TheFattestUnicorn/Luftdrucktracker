@@ -1,11 +1,12 @@
 import express from 'express';
 import sqlite3 from 'better-sqlite3';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import { Bus } from 'async-i2c-bus';
 import { BMP280 } from 'async-bmp280';
 
+// Gemeni helped, for the change from request to import.
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -17,8 +18,9 @@ const allowedOrigins = [
   'https://migrane.fatunicorn.ch'
 ];
 
-let db; // Declare the database variable outside the try-catch
+let db;
 let server;
+// Gemini help because of Shutdown
 let isShuttingDown = false; // Add a flag to indicate shutdown
 
 try {
@@ -30,10 +32,10 @@ try {
   process.exit(1);
 }
 
-// CORS Middleware (allowing only GET and POST)
+// Some help from Gemini, because documentation was a bit complicated.
+// CORS Middleware to allow cross site origin
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  console.log('Incoming Origin:', origin);
   const allowedMethods = ['GET', 'POST', 'OPTIONS'];
 
   if (allowedOrigins.includes(origin)) {
@@ -55,16 +57,17 @@ app.use(express.json());
 // Function to insert pressure readings into the database
 function insertPressureReading(pressure_hpa) {
   const now = new Date().toISOString();
+  // Gemini help because of Shutdown
   if (isShuttingDown) {
     console.warn('Database write prevented due to shutdown: Pressure =', pressure_hpa);
     return; // Don't write if shutting down
   }
   try {
-    const stmt = db.prepare(`
+    const dbwrite = db.prepare(`
       INSERT INTO pressure_readings (timestamp, pressure_hpa)
       VALUES (?, ?)
     `);
-    stmt.run(now, pressure_hpa);
+    dbwrite.run(now, pressure_hpa);
     console.log(`Inserted pressure reading: ${pressure_hpa} hPa at ${now}`);
   } catch (error) {
     console.error('Error inserting pressure reading:', error.message);
@@ -82,35 +85,21 @@ app.get('/api/pressure/history', (req, res) => {
     res.json({ pressures: rows });
   } catch (err) {
     console.error('Error getting pressure history:', err.message);
-    res.status(500).json({ error: 'Internal server error' });
-    // Important: Send a proper error response to the client
-    res.status(500).json({ error: 'Failed to retrieve pressure history' });
+    res.status(500).json({ error: 'Internal server error, failed to retrieve pressure history' });
   }
 });
 
-app.post('/api/pressure', (req, res) => {
-  const { pressure_hpa } = req.body;
-
-  if (pressure_hpa === undefined || typeof pressure_hpa !== 'number') {
-    res.status(400).json({ error: 'Pressure reading is required and must be a number.' });
-    return;
-  }
-
-  insertPressureReading(pressure_hpa); // Use the function
-  res.status(201).json({ message: 'Pressure reading added successfully', timestamp: new Date().toISOString(), pressure_hpa });
-});
-
-// Endpunkt zum Speichern von Notizen und Slider-Werten
+// Endpoint to save migraine data into migrane_events
 app.post('/api/migraine', (req, res) => {
   const { date, note, sliderValue } = req.body;
 
+  // Help from Gemini to check the right post
   if (!date || note === undefined || sliderValue === undefined) {
     res.status(400).json({ error: 'Date, note, and sliderValue are required.' });
     return;
   }
 
   try {
-    // **Database Insert/Update Logic:**
     // Check if a record with the given date already exists.
     const existingRecord = db.prepare(`
       SELECT timestamp FROM migraine_events WHERE timestamp = ?
@@ -123,14 +112,14 @@ app.post('/api/migraine', (req, res) => {
       `);
       updateStmt.run(sliderValue, note, date);
       console.log(`Updated migraine data: date=${date}, severity=${sliderValue}, note=${note}`);
-      res.status(200).json({ message: 'Data updated successfully', date, severity: sliderValue, note }); // Changed status code to 200
+      res.status(200).json({ message: 'Data updated successfully', date, severity: sliderValue, note });
     } else {
       // Insert a new record.
-      const insertStmt = db.prepare(`
+      const dbwrite = db.prepare(`
         INSERT INTO migraine_events (timestamp, severity, note)
         VALUES (?, ?, ?)
       `);
-      insertStmt.run(date, sliderValue, note);
+      dbwrite.run(date, sliderValue, note);
       console.log(`Inserted migraine data: date=${date}, severity=${sliderValue}, note=${note}`);
       res.status(201).json({ message: 'Data saved successfully', date, severity: sliderValue, note });
     }
@@ -138,9 +127,7 @@ app.post('/api/migraine', (req, res) => {
 
   } catch (error) {
     console.error('Error saving/updating data:', error.message);
-    res.status(500).json({ error: 'Internal server error' });
-    // Important: Send a proper error response to the client
-    res.status(500).json({ error: 'Failed to save/update data' });
+    res.status(500).json({ error: 'Internal server error, failed to put in data' });
   }
 });
 
@@ -154,9 +141,7 @@ app.get('/api/migraine', (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error('Error fetching migraine events:', err.message);
-    res.status(500).json({ error: 'Internal server error' });
-    // Important: Send a proper error response to the client
-    res.status(500).json({ error: 'Failed to retrieve migraine events' });
+    res.status(500).json({ error: 'Internal server error, failed to retrieve migraine data' });
   }
 });
 
@@ -182,7 +167,7 @@ const main = async () => {
         console.log(`Pressure: ${pressure} Pa`);
         // Convert Pascal to HectoPascal
         const pressure_hpa = pressure / 100;
-        insertPressureReading(pressure_hpa); // Store in database
+        insertPressureReading(pressure_hpa);
       } catch (error) {
         console.error("Error reading sensor data:", error);
       }
@@ -200,6 +185,8 @@ main().catch(err => {
   process.exit(1);
 });
 
+
+// Gemini helped a lot with the termination
 // Handle process termination (Ctrl+C)
 process.on('SIGINT', () => {
   console.log('SIGINT received. Starting graceful shutdown...');
