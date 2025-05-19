@@ -4,6 +4,7 @@
   "description": "API to get Pressure Data",
   "main": "pressure.js",
   "license": "MIT",
+  "type": "module",
   "dependencies": {
     "async-bmp280": "^1.1.1",
     "async-i2c-bus": "^2.0.0",
