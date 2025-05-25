@@ -15,11 +15,12 @@ Die API wird lokal auf dem Raspberry gehostet und läuft auf dem Port 3000. Dies
 
 **GET:**  
 Gibt alle gesammelten barometrischen Daten aus der SQLite-Datenbank zurück.
+
 ```json
-[
-    {"timestamp":"2025-05-08","severity":3,"note":"Leichte Migräne"},
-    {"timestamp":"2025-05-13","severity":5,"note":"Relativ starke Aura, kaum Kopfschmerzen"}
-]
+{"pressures":[
+    {"timestamp":"2025-05-13T11:53:07.913Z","pressure":963.0665906429475},
+    {"timestamp":"2025-05-13T13:42:26.131Z","pressure":962.3733457813566}
+]}
 ```
 
 ### `/api/migraine`
@@ -28,10 +29,10 @@ Gibt alle gesammelten barometrischen Daten aus der SQLite-Datenbank zurück.
 Gibt alle Migräneereignisse mit Notizen und Intensitäten zurück.
 
 ```json
-{"pressures":[
-    {"timestamp":"2025-05-13T11:53:07.913Z","pressure":963.0665906429475},
-    {"timestamp":"2025-05-13T13:42:26.131Z","pressure":962.3733457813566}
-]}
+[
+    {"timestamp":"2025-05-08","severity":3,"note":"Leichte Migräne"},
+    {"timestamp":"2025-05-13","severity":5,"note":"Relativ starke Aura, kaum Kopfschmerzen"}
+]
 ```
 
 **POST:**  
