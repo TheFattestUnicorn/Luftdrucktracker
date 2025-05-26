@@ -8,6 +8,8 @@ Der Luftdrucktracker verwendet einen BMP280-Sensor, der an einem Raspberry Pi pe
 
 ![Setup](Setup.drawio.svg)
 
+![Frontend](Frontend.png)
+
 ## Out of scope
 Die API wird lokal auf dem Raspberry gehostet und läuft auf dem Port 3000. Dieser wird über einen HAProxy veröffentlicht. Die Verschlüsselung übernimt acme.sh welches automatisch Zertifikate generiert. Das Frontend wird per lokalem nginx auf dem raspberry pi, Port 80, intern veröffentlicht. Dies wird ebenfalls via HAProxy und acme.sh ins Internet publiziert.
 
