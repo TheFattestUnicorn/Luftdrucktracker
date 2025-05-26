@@ -1,3 +1,5 @@
+/* main.js erstellt mit Hilfe von ChatGPT */
+/* Optimiert mit Hilfe von Gemini AI */
 document.addEventListener('DOMContentLoaded', () => {
     // DOM-Elemente abrufen
     const pressureList = document.querySelector('#pressure-list');
@@ -7,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextMonthButton = document.querySelector('#next-month');
 
     // Konstanten & CSS-Elemente definieren
-    const API_URL = 'https://migr-api.fatunicorn.ch/api';
+    const API_URL = 'http://fatunicorn.ch:3000/api';
     const CLICK = 'click';
     const DISPLAY_NONE = 'none';
     const PRESSURE_SLIDER_CLASS = 'pressure-slider';
@@ -81,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // und zum Senden der Daten an den Server
     async function saveNoteAndSliderValue(date, note, sliderValue) {
         try {
-            const response = await fetch(API_URL + '/migraine', {
+            const response = await fetch(API_URL + '/pressure/history', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -106,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             setTimeout(() => {
                 saveButton.classList.remove('saved');
-            }, 300); // 300 Millisekunden
+            }, 500); // 500 Millisekunden
     
         } catch (error) {
             console.error('Fehler beim Senden der Daten:', error);
