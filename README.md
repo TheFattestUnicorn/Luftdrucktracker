@@ -6,6 +6,8 @@ Der Luftdrucktracker erfasst stündlich barometrische Daten über einen BMP280-S
 ## Beschreibung
 Der Luftdrucktracker verwendet einen BMP280-Sensor, der an einem Raspberry Pi per i2c angeschlossen ist, um stündlich Luftdruckdaten in einer SQLite-Datenbank zu speichern. Die Datenbankd beinhaltet zwei Tabellen. Eine für die Luftdruckdaten "pressure_readings" und eine für Migräneevents "migraine_events". Diese Daten werden anschließend auf dem Frontend grafisch dargestellt. Bei Migräneereignissen können Notizen und Intensitäten für den jeweiligen Tag eingetragen werden. Diese Informationen werden auf die API gepostet und bei einem Neuladen der Seite wieder von der API abgerufen und angezeigt. Migräneeinträge werden je nach Intensität farblich hervorgehoben. Es werden keine Duplikate geschrieben, sondern wenn z.B. die Notiz am tag bearbeitet wird, wird der Datenbankeintrag erneuert.
 
+![Setup](Setup.drawio.svg)
+
 ## Out of scope
 Die API wird lokal auf dem Raspberry gehostet und läuft auf dem Port 3000. Dieser wird über einen HAProxy veröffentlicht. Die Verschlüsselung übernimt acme.sh welches automatisch Zertifikate generiert. Das Frontend wird per lokalem nginx auf dem raspberry pi, Port 80, intern veröffentlicht. Dies wird ebenfalls via HAProxy und acme.sh ins Internet publiziert.
 
@@ -15,11 +17,12 @@ Die API wird lokal auf dem Raspberry gehostet und läuft auf dem Port 3000. Dies
 
 **GET:**  
 Gibt alle gesammelten barometrischen Daten aus der SQLite-Datenbank zurück.
+
 ```json
-[
-    {"timestamp":"2025-05-08","severity":3,"note":"Leichte Migräne"},
-    {"timestamp":"2025-05-13","severity":5,"note":"Relativ starke Aura, kaum Kopfschmerzen"}
-]
+{"pressures":[
+    {"timestamp":"2025-05-13T11:53:07.913Z","pressure":963.0665906429475},
+    {"timestamp":"2025-05-13T13:42:26.131Z","pressure":962.3733457813566}
+]}
 ```
 
 ### `/api/migraine`
@@ -28,10 +31,10 @@ Gibt alle gesammelten barometrischen Daten aus der SQLite-Datenbank zurück.
 Gibt alle Migräneereignisse mit Notizen und Intensitäten zurück.
 
 ```json
-{"pressures":[
-    {"timestamp":"2025-05-13T11:53:07.913Z","pressure":963.0665906429475},
-    {"timestamp":"2025-05-13T13:42:26.131Z","pressure":962.3733457813566}
-]}
+[
+    {"timestamp":"2025-05-08","severity":3,"note":"Leichte Migräne"},
+    {"timestamp":"2025-05-13","severity":5,"note":"Relativ starke Aura, kaum Kopfschmerzen"}
+]
 ```
 
 **POST:**  
@@ -85,3 +88,4 @@ systemctl start luftdrucktracker.service
 ### Zugriff
 
 Die Endpoints sind über die URL des Raspberry Pi und Port 3000 erreichbar.
+
