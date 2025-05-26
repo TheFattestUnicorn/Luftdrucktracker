@@ -85,23 +85,3 @@ systemctl start luftdrucktracker.service
 ### Zugriff
 
 Die Endpoints sind über die URL des Raspberry Pi und Port 3000 erreichbar.
-
-## Vorgaben
-
-Die Projektarbeit umfasst die Implementierung einer Webapplikation mit Server auf dem Raspberry Pi und Client im Webbrowser. Folgende Punkte sind zu erfüllen:
-
-- **Serverseitige Applikation:** Im Unterordner `server`.
-- **Clientseitige Applikation:** Im Unterordner `client`.
-- **Abgabe:** Über ein öffentliches Git-Repository.
-- **Dokumentation:**  
-    - Abstract in maximal 3 Sätzen.  
-    - Allgemeine Funktionsweise der Applikation (Diagramm erwünscht).  
-    - Kurze Beschreibung aller serverseitigen API-Endpoints.  
-    - Beschreibung des Source-Codes und der Funktionsweise des Clients.  
-    - Hardwareanbindung ist optional.  
-
-Die Dokumentation sollte als Markdown-README.md erstellt werden und mindestens einen Screenshot des Clients enthalten. Der Umfang sollte maximal zwei A4-Seiten entsprechen.
-
-Neben der Dokumentation wird erwartet, dass im README.md erklärt wird, wie die Applikation in Betrieb genommen werden kann.
-
-**Hinweis:** Die Qualität der Dokumentation und des Source-Codes fließt in die Bewertung ein.
