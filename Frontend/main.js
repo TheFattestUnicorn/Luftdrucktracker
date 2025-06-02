@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextMonthButton = document.querySelector('#next-month');
 
     // Konstanten & CSS-Elemente definieren
-    const API_URL = 'http://fatunicorn.ch:3000/api';
+    const API_URL = 'https://migr-api.fatunicorn.ch/api';
     const CLICK = 'click';
     const DISPLAY_NONE = 'none';
     const PRESSURE_SLIDER_CLASS = 'pressure-slider';
@@ -352,14 +352,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Event-Listener für die Schaltflächen zum Wechseln des Monats
-    prevMonthButton.addEventListener('click', () => {
+    prevMonthButton.addEventListener('click',async () => {
         currentMonth.setMonth(currentMonth.getMonth() - 1);
         renderList();
+        await loadSavedData(); // Gespeicherte Daten nach dem Rendern laden
     });
 
-    nextMonthButton.addEventListener('click', () => {
+    nextMonthButton.addEventListener('click',async () => {
         currentMonth.setMonth(currentMonth.getMonth() + 1);
         renderList();
+        await loadSavedData(); // Gespeicherte Daten nach dem Rendern laden
     });
 
     // Initialisierung: Daten abrufen und die Liste initial rendern
