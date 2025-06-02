@@ -42,6 +42,9 @@ Gibt alle Migräneereignisse mit Notizen und Intensitäten zurück.
 **POST:**  
 Erstellt ein neues Migräneereignis mit Notiz und Intensität.
 
+## Funktionsweise des Clients
+Es wird für jeden Tag im Monat, von welchem Luftdruckdaten vorhanden sind, einen Listeneintrag erstellt. Links steht der durchschnittliche Luftdruck von diesem Tag. Durch Klick auf den Tag (Eintrag) wird ein Bereich aufgeklapt. In diesem Bereich wird zum einen der Lufdruckverlauf angezeigt, zum anderen kann eine Notiz angelegt werden. Zusätzlich kann bei jedem Tag der Slider-Wert gesetzt werden. Dieser sagt aus, wie stark die Migräne an diesem Tag war. Ungesetzte Slider haben den Wert 1 und sind weiss. Um die Slider-Werte sowie die optionale Notiz zu speichern, muss noch der entsprechende Button geklickt werden. Beim nächsten Aufruf der Seite werden nun die gesetzten Slider und Notizen angezeigt und man kann so die Einträge vergleichen. Daraus soll sich ein etwaiges Muster erkennen lassen, ob die Migräne einen Zusammenhang mit dem Luftdruck hat.
+
 ## Inbetriebnahme
 
 ### Voraussetzungen
